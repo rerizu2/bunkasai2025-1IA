@@ -90,11 +90,11 @@
 
   <script>
     const chips = [
-      { color: 'red', img: 'https://rerizu2.github.io/bunkasai2025-1IA/1IA%E3%82%B3%E3%82%A4%E3%83%B3.png' },
-      { color: 'green', img: 'https://rerizu2.github.io/bunkasai2025-1IA/5IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG' },
-      { color: 'blue', img: 'https://rerizu2.github.io/bunkasai2025-1IA/10IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG' },
-      { color: 'white', img: 'https://rerizu2.github.io/bunkasai2025-1IA/50IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG' },
-      { color: 'black', img: 'https://rerizu2.github.io/bunkasai2025-1IA/100IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG' }
+      { color: 'red', img: 'https://rerizu2.github.io/bunkasai2025-1IA/1IA%E3%82%B3%E3%82%A4%E3%83%B3.png', max: 100 },
+      { color: 'green', img: 'https://rerizu2.github.io/bunkasai2025-1IA/5IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG', max: 100 },
+      { color: 'blue', img: 'https://rerizu2.github.io/bunkasai2025-1IA/10IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG', max: 50 },
+      { color: 'white', img: 'https://rerizu2.github.io/bunkasai2025-1IA/50IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG', max: 20 },
+      { color: 'black', img: 'https://rerizu2.github.io/bunkasai2025-1IA/100IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG', max: 10 }
     ];
 
     const counts = new Array(chips.length).fill(0);
@@ -124,8 +124,8 @@
       plus.className = 'btn';
       plus.textContent = '+';
 
-      minus.addEventListener('click', () => updateCount(i, -1, counter));
-      plus.addEventListener('click', () => updateCount(i, 1, counter));
+      minus.addEventListener('click', () => updateCount(i, -1, counter, chip.max));
+      plus.addEventListener('click', () => updateCount(i, 1, counter, chip.max));
 
       area.appendChild(minus);
       area.appendChild(counter);
@@ -134,9 +134,9 @@
       container.appendChild(row);
     });
 
-    function updateCount(index, delta, display) {
+    function updateCount(index, delta, display, max) {
       const newValue = counts[index] + delta;
-      if (newValue < 0) return;
+      if (newValue < 0 || newValue > max) return;
       counts[index] = newValue;
       display.textContent = newValue;
     }
