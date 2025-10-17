@@ -150,10 +150,15 @@
 
 <script>
   const counts = [0, 0, 0, 0, 0];
+  const maxValues = [100, 100, 50, 20, 10];
 
   function increment(index) {
-    counts[index]++;
-    document.getElementById(`count${index}`).textContent = counts[index];
+    if (counts[index] < maxValues[index]) {
+      counts[index]++;
+      document.getElementById(`count${index}`).textContent = counts[index];
+    } else {
+      alert("これ以上追加できません（上限：" + maxValues[index] + "枚）");
+    }
   }
 
   function decrement(index) {
@@ -164,12 +169,12 @@
   }
 
   function submitCounts() {
-    let message = 
-      `赤: ${counts[0]}枚\n` +
-      `緑: ${counts[1]}枚\n` +
-      `青: ${counts[2]}枚\n` +
-      `白: ${counts[3]}枚\n` +
-      `黒: ${counts[4]}枚`;
+    let message =
+      `赤: ${counts[0]}枚（最大100）\n` +
+      `緑: ${counts[1]}枚（最大100）\n` +
+      `青: ${counts[2]}枚（最大50）\n` +
+      `白: ${counts[3]}枚（最大20）\n` +
+      `黒: ${counts[4]}枚（最大10）`;
     alert("入力結果:\n" + message);
   }
 </script>
