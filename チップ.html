@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>縦並び画像＋カウント</title>
+  <style>
+    :root{font-family: "Noto Sans JP", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+    body{padding:20px;background:#f6f7fb;color:#111}
+    .container{display:flex;gap:24px;align-items:flex-start}
+    /* 左の縦に画像を並べる列 */
+    .image-col{display:flex;flex-direction:column;gap:12px;width:140px}
+    .image-card{display:flex;align-items:center;gap:12px;padding:8px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+    .image-card img{width:100px;height:70px;object-fit:cover;border-radius:6px}
+
+    /* 右側のコントロール列 */
+    .controls-col{flex:1;display:flex;flex-direction:column;gap:12px}
+    .control-row{display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:8px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+
+    .counter{min-width:48px;text-align:center;font-weight:700;font-size:18px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;user-select:none}
+    .btn:active{transform:translateY(1px)}
+    .btn[disabled]{opacity:.45;cursor:not-allowed}
+
+    /* レスポンシブ */
+    @media (max-width:600px){
+      .container{flex-direction:column}
+      .image-col{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <h2>画像リストとカウント（最低0）</h2>
+  <p>左に縦に並んだ画像。それぞれの横に数字と「-」「+」ボタンがあります。</p>
+
+  <div class="container" id="app">
+    <div class="image-col" id="imageCol">
+      <!-- 画像リスト（自動生成） -->
+    </div>
+
+    <div class="controls-col" id="controlsCol">
+      <!-- コントロール（自動生成） -->
+    </div>
+  </div>
+
+  <script>
+    // サンプル画像（外部プレースホルダー）。必要であれば画像URLを置き換えてください。
+    const images = [
+      'https://rerizu2.github.io/bunkasai2025-1IA/1IAコイン.png',
+      'https://rerizu2.github.io/bunkasai2025-1IA/5IAコイン.PNG',
+      'https://rerizu2.github.io/bunkasai2025-1IA/10IAコイン.PNG',
+      'https://rerizu2.github.io/bunkasai2025-1IA/50IAコイン.PNG',
+      'https://rerizu2.github.io/bunkasai2025-1IA/100IAコイン.PNG'
+    ];
+
+    // 各アイテムの初期カウント（全部0）
+    const counts = new Array(images.length).fill(0);
+
+    const imageCol = document.getElementById('imageCol');
+    const controlsCol = document.getElementById('controlsCol');
+
+    function createUI() {
+      images.forEach((src, i) => {
+        // 左側画像カード
+        const imgCard = document.createElement('div');
+        imgCard.className = 'image-card';
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = `画像 ${i+1}`;
+        imgCard.appendChild(img);
+        imageCol.appendChild(imgCard);
+
+        // 右側コントロール行
+        const row = document.createElement('div');
+        row.className = 'control-row';
+        row.dataset.index = i;
+
+        const minus = document.createElement('button');
+        minus.className = 'btn minus';
+        minus.type = 'button';
+        minus.title = '減らす';
+        minus.innerText = '-';
+
+        const counter = document.createElement('div');
+        counter.className = 'counter';
+        counter.innerText = counts[i];
+
+        const plus = document.createElement('button');
+        plus.className = 'btn plus';
+        plus.type = 'button';
+        plus.title = '増やす';
+        plus.innerText = '+';
+
+        // ボタンのイベント
+        minus.addEventListener('click', () => updateCount(i, -1, counter));
+        plus.addEventListener('click', () => updateCount(i, +1, counter));
+
+        // キーボード操作のサポート（フォーカス可能にする）
+        minus.setAttribute('aria-label', `画像 ${i+1} の減らす`);
+        plus.setAttribute('aria-label', `画像 ${i+1} の増やす`);
+
+        row.appendChild(minus);
+        row.appendChild(counter);
+        row.appendChild(plus);
+
+        controlsCol.appendChild(row);
+      });
+
+      refreshButtons();
+    }
+
+    function updateCount(index, delta, counterEl) {
+      const newVal = counts[index] + delta;
+      if (newVal < 0) return; // 最低0
+      counts[index] = newVal;
+      counterEl.innerText = counts[index];
+      refreshButtons();
+    }
+
+    // 各行のマイナスボタンをカウントが0のとき無効にする
+    function refreshButtons() {
+      const rows = document.querySelectorAll('.control-row');
+      rows.forEach(r => {
+        const idx = Number(r.dataset.index);
+        const minus = r.querySelector('.minus');
+        if (counts[idx] <= 0) {
+          minus.disabled = true;
+        } else {
+          minus.disabled = false;
+        }
+        // 更新されたカウントを表示（念のため）
+        const counter = r.querySelector('.counter');
+        counter.innerText = counts[idx];
+      });
+    }
+
+    // 初期UI生成
+    createUI();
+
+    // 追加のデモ：クリックで画像を差し替える（任意）
+    imageCol.addEventListener('click', (e) => {
+      const img = e.target.closest('img');
+      if (!img) return;
+      const idx = Array.from(imageCol.querySelectorAll('img')).indexOf(img);
+      // クリックされたらカウントを1増やす（デモ）
+      updateCount(idx, 1, controlsCol.querySelectorAll('.counter')[idx]);
+    });
+  </script>
+</body>
+</html>
