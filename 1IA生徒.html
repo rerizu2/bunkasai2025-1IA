@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>カジノチップカウント ×4（QR読み取り対応）</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      background: #222;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: nowrap;
+      gap: 30px;
+      padding: 30px;
+      margin: 0;
+    }
+
+    .counter-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      padding: 20px;
+      width: 380px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .chip-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .chip-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-radius: 10px;
+      padding: 10px 20px;
+      width: 320px;
+      color: #fff;
+    }
+
+    .chip-row img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+      justify-content: flex-end;
+    }
+
+    button {
+      background: #444;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #666;
+    }
+
+    .count {
+      font-size: 20px;
+      width: 40px;
+      text-align: center;
+    }
+
+    .submitBtn {
+      background: #00c853;
+    }
+
+    .submitBtn:hover {
+      background: #00e676;
+    }
+
+    .cameraBtn {
+      background: #0288d1;
+    }
+
+    .cameraBtn:hover {
+      background: #03a9f4;
+    }
+
+    .qrcode {
+      margin-top: 15px;
+    }
+
+    .scanner {
+      width: 250px;
+      height: 250px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .scan-result {
+      margin-top: 10px;
+      font-size: 14px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1つ目のカウンター -->
+  <div class="counter-box">
+    <h2>カウンター 1</h2>
+    <div class="chip-container">
+      <div class="chip-row" data-color="red" data-max="100" style="background:#ff5252;">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/1IA%E3%82%B3%E3%82%A4%E3%83%B3.png">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
+      </div>
+
+      <div class="chip-row" data-color="green" data-max="100" style="background:#4caf50;">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/5IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
+      </div>
+
+      <div class="chip-row" data-color="blue" data-max="50" style="background:#2196f3;">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/10IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
+      </div>
+
+      <div class="chip-row" data-color="white" data-max="20" style="background:#f5f5f5; color:#000;">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/50IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
+      </div>
+
+      <div class="chip-row" data-color="black" data-max="10" style="background:#000;">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/100IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="submitBtn">QR生成</button>
+    <button class="cameraBtn">📷 カメラを起動</button>
+    <div class="qrcode"></div>
+    <div id="scanner-1" class="scanner"></div>
+    <div class="scan-result"></div>
+  </div>
+
+  <!-- 残り3つは複製される -->
+  <div class="counter-box"><h2>カウンター 2</h2></div>
+  <div class="counter-box"><h2>カウンター 3</h2></div>
+  <div class="counter-box"><h2>カウンター 4</h2></div>
+
+  <script>
+    // 1つ目の構造を残り3つにコピー
+    const firstBox = document.querySelector('.counter-box');
+    const others = document.querySelectorAll('.counter-box:not(:first-child)');
+    others.forEach((box, i) => {
+      box.innerHTML = firstBox.innerHTML.replace(/scanner-1/g, `scanner-${i+2}`);
+      box.querySelector('h2').textContent = `カウンター ${i+2}`;
+    });
+
+    // カウント・QR生成・カメラ読み取り
+    document.querySelectorAll('.counter-box').forEach((box, index) => {
+      const chipRows = box.querySelectorAll(".chip-row");
+      const submitBtn = box.querySelector(".submitBtn");
+      const cameraBtn = box.querySelector(".cameraBtn");
+      const qrDiv = box.querySelector(".qrcode");
+      const scannerDiv = box.querySelector(`#scanner-${index+1}`);
+      const resultDiv = box.querySelector(".scan-result");
+      let scanner = null;
+
+      // カウントボタン処理
+      chipRows.forEach(row => {
+        const countSpan = row.querySelector(".count");
+        const plusBtn = row.querySelector(".plus");
+        const minusBtn = row.querySelector(".minus");
+        const max = Number(row.dataset.max);
+        let count = 0;
+        plusBtn.onclick = () => { if (count < max) countSpan.textContent = ++count; };
+        minusBtn.onclick = () => { if (count > 0) countSpan.textContent = --count; };
+      });
+
+      // QR生成
+      submitBtn.onclick = () => {
+        const counts = {};
+        chipRows.forEach(row => {
+          const color = row.dataset.color;
+          const count = row.querySelector(".count").textContent;
+          counts[color] = count;
+        });
+        const query = new URLSearchParams(counts).toString();
+        const qrURL = `${location.origin}${location.pathname}?${query}&counter=${index+1}`;
+        qrDiv.innerHTML = "";
+        new QRCode(qrDiv, {
+          text: qrURL,
+          width: 150,
+          height: 150,
+          colorDark: "#000",
+          colorLight: "#fff"
+        });
+      };
+
+      // カメラ起動＆読み取り
+      cameraBtn.onclick = () => {
+        if (scanner) {
+          scanner.stop();
+          scanner = null;
+          scannerDiv.style.display = "none";
+          return;
+        }
+        scannerDiv.style.display = "block";
+        scanner = new Html5Qrcode(`scanner-${index+1}`);
+        scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: 200 },
+          (decodedText) => {
+            resultDiv.textContent = `✅ 読み取ったURL: ${decodedText}`;
+            scanner.stop();
+            scannerDiv.style.display = "none";
+            scanner = null;
+          },
+          (error) => {}
+        ).catch(err => {
+          resultDiv.textContent = "カメラを起動できませんでした。";
+          console.error(err);
+        });
+      };
+    });
+  </script>
+</body>
+</html>
