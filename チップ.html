@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>カジノチップカウント</title>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <!-- ✅ 安定版のQRコードライブラリ -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <style>
     body {
       font-family: "Noto Sans JP", sans-serif;
@@ -29,10 +30,10 @@
       display: flex;
       align-items: center;
       gap: 15px;
-      background: rgba(255, 255, 255, 0.1);
       border-radius: 10px;
       padding: 10px 20px;
       width: 320px;
+      color: #fff;
     }
 
     .chip-row img {
@@ -86,13 +87,16 @@
 
     #qrcode {
       margin-top: 20px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
   <div class="chip-container">
-    <div class="chip-row" data-color="red" data-max="100" style="background:#ff5252;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/1IA%E3%82%B3%E3%82%A4%E3%83%B3.png" alt="Red Chip">
+    <div class="chip-row" data-color="赤" data-max="100" style="background:#ff5252;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Poker_chip_red.png" alt="Red Chip">
       <div class="controls">
         <button class="minus">−</button>
         <span class="count">0</span>
@@ -100,8 +104,8 @@
       </div>
     </div>
 
-    <div class="chip-row" data-color="green" data-max="100" style="background:#4caf50;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/5IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Green Chip">
+    <div class="chip-row" data-color="緑" data-max="100" style="background:#4caf50;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Poker_chip_green.png" alt="Green Chip">
       <div class="controls">
         <button class="minus">−</button>
         <span class="count">0</span>
@@ -109,8 +113,8 @@
       </div>
     </div>
 
-    <div class="chip-row" data-color="blue" data-max="50" style="background:#2196f3;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/10IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Blue Chip">
+    <div class="chip-row" data-color="青" data-max="50" style="background:#2196f3;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Poker_chip_blue.png" alt="Blue Chip">
       <div class="controls">
         <button class="minus">−</button>
         <span class="count">0</span>
@@ -118,8 +122,8 @@
       </div>
     </div>
 
-    <div class="chip-row" data-color="white" data-max="20" style="background:#f5f5f5; color:#000;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/50IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="White Chip">
+    <div class="chip-row" data-color="白" data-max="20" style="background:#f5f5f5; color:#000;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/Poker_chip_white.png" alt="White Chip">
       <div class="controls">
         <button class="minus">−</button>
         <span class="count">0</span>
@@ -127,8 +131,8 @@
       </div>
     </div>
 
-    <div class="chip-row" data-color="black" data-max="10" style="background:#000;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/100IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Black Chip">
+    <div class="chip-row" data-color="黒" data-max="10" style="background:#000;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Poker_chip_black.png" alt="Black Chip">
       <div class="controls">
         <button class="minus">−</button>
         <span class="count">0</span>
@@ -138,12 +142,11 @@
   </div>
 
   <button id="submitBtn">入力完了</button>
-  <div id="qrcode"></div>
+  <canvas id="qrcode"></canvas>
 
   <script>
     const chipRows = document.querySelectorAll(".chip-row");
 
-    // カウント処理
     chipRows.forEach(row => {
       const countSpan = row.querySelector(".count");
       const plusBtn = row.querySelector(".plus");
@@ -165,38 +168,21 @@
       };
     });
 
-    // URLから読み込み（再現機能）
-    window.onload = () => {
-      const params = new URLSearchParams(window.location.search);
-      chipRows.forEach(row => {
-        const color = row.dataset.color;
-        const val = params.get(color);
-        if (val !== null) {
-          const countSpan = row.querySelector(".count");
-          countSpan.textContent = val;
-        }
-      });
-    };
-
-    // 入力完了 → QRコード生成
     document.getElementById("submitBtn").onclick = () => {
-      const counts = {};
+      const lines = [];
       chipRows.forEach(row => {
         const color = row.dataset.color;
         const count = row.querySelector(".count").textContent;
-        counts[color] = count;
+        lines.push(`${color}=${count}`);
       });
 
-      const query = new URLSearchParams(counts).toString();
-      const qrURL = `${location.origin}${location.pathname}?${query}`;
+      const qrText = lines.join("\n");
 
-      document.getElementById("qrcode").innerHTML = "";
-      new QRCode(document.getElementById("qrcode"), {
-        text: qrURL,
-        width: 180,
-        height: 180,
-        colorDark: "#000",
-        colorLight: "#fff"
+      // ✅ QRコード生成（canvasを使う）
+      const canvas = document.getElementById("qrcode");
+      QRCode.toCanvas(canvas, qrText, { width: 200 }, function (error) {
+        if (error) console.error(error);
+        else console.log("QRコード生成完了");
       });
     };
   </script>
