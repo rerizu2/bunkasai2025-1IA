@@ -37,13 +37,20 @@
 
     .chip-row {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
       border-radius: 10px;
       padding: 10px 15px;
       width: 100%;
       box-sizing: border-box;
       transition: all 0.3s ease;
+    }
+
+    .chip-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
     }
 
     .chip-row img {
@@ -78,6 +85,12 @@
       font-size: 18px;
       width: 40px;
       text-align: center;
+    }
+
+    .remaining {
+      font-size: 14px;
+      margin-top: 6px;
+      opacity: 0.8;
     }
 
     #submitBtn {
@@ -135,48 +148,63 @@
     <h2>カジノチップ カウンター</h2>
     <div class="chip-container">
       <div class="chip-row red" data-color="赤" data-max="100">
-        <img src="https://rerizu2.github.io/bunkasai2025-1IA/1IA%E3%82%B3%E3%82%A4%E3%83%B3.png" alt="Red Chip">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
+        <div class="chip-main">
+          <img src="https://rerizu2.github.io/bunkasai2025-1IA/1IA%E3%82%B3%E3%82%A4%E3%83%B3.png" alt="Red Chip">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
         </div>
+        <div class="remaining">残り: 100枚</div>
       </div>
 
       <div class="chip-row green" data-color="緑" data-max="100">
-        <img src="https://rerizu2.github.io/bunkasai2025-1IA/5IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Green Chip">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
+        <div class="chip-main">
+          <img src="https://rerizu2.github.io/bunkasai2025-1IA/5IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Green Chip">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
         </div>
+        <div class="remaining">残り: 100枚</div>
       </div>
 
       <div class="chip-row blue" data-color="青" data-max="50">
-        <img src="https://rerizu2.github.io/bunkasai2025-1IA/10IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Blue Chip">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
+        <div class="chip-main">
+          <img src="https://rerizu2.github.io/bunkasai2025-1IA/10IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Blue Chip">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
         </div>
+        <div class="remaining">残り: 50枚</div>
       </div>
 
       <div class="chip-row white" data-color="白" data-max="20">
-        <img src="https://rerizu2.github.io/bunkasai2025-1IA/50IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="White Chip">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
+        <div class="chip-main">
+          <img src="https://rerizu2.github.io/bunkasai2025-1IA/50IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="White Chip">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
         </div>
+        <div class="remaining">残り: 20枚</div>
       </div>
 
       <div class="chip-row black" data-color="黒" data-max="10">
-        <img src="https://rerizu2.github.io/bunkasai2025-1IA/100IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Black Chip">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
+        <div class="chip-main">
+          <img src="https://rerizu2.github.io/bunkasai2025-1IA/100IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Black Chip">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
         </div>
+        <div class="remaining">残り: 10枚</div>
       </div>
     </div>
 
@@ -190,21 +218,28 @@
 
     chipRows.forEach(row => {
       const countSpan = row.querySelector(".count");
+      const remaining = row.querySelector(".remaining");
       const plusBtn = row.querySelector(".plus");
       const minusBtn = row.querySelector(".minus");
       const max = Number(row.dataset.max);
       let count = 0;
 
+      function updateRemaining() {
+        remaining.textContent = `残り: ${max - count}枚`;
+      }
+
       plusBtn.onclick = () => {
         if (count < max) {
           count++;
           countSpan.textContent = count;
+          updateRemaining();
         }
       };
       minusBtn.onclick = () => {
         if (count > 0) {
           count--;
           countSpan.textContent = count;
+          updateRemaining();
         }
       };
     });
@@ -218,7 +253,6 @@
       });
 
       const qrText = lines.join("\n");
-
       const canvas = document.getElementById("qrcode");
       QRCode.toCanvas(canvas, qrText, { width: Math.min(window.innerWidth * 0.6, 250) }, function (error) {
         if (error) console.error(error);
