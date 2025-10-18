@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>カジノチップカウント</title>
-  <!-- ✅ 安定版のQRコードライブラリ -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <style>
     body {
@@ -13,32 +13,42 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      justify-content: flex-start;
+      min-height: 100vh;
       margin: 0;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
     }
 
     .chip-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
-      margin-bottom: 20px;
+      gap: 12px;
+      width: 100%;
+      max-width: 480px;
+      transition: all 0.3s ease;
     }
 
     .chip-row {
       display: flex;
       align-items: center;
-      gap: 15px;
+      justify-content: space-between;
       border-radius: 10px;
-      padding: 10px 20px;
-      width: 320px;
-      color: #fff;
+      padding: 10px 15px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
     }
 
     .chip-row img {
-      width: 70px;
-      height: 70px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       object-fit: cover;
     }
@@ -47,19 +57,17 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-grow: 1;
-      justify-content: flex-end;
     }
 
     button {
       background: #444;
       color: #fff;
       border: none;
-      padding: 10px 15px;
+      padding: 10px;
       border-radius: 50%;
       font-size: 18px;
       cursor: pointer;
-      transition: 0.3s;
+      transition: 0.2s;
     }
 
     button:hover {
@@ -67,7 +75,7 @@
     }
 
     .count {
-      font-size: 20px;
+      font-size: 18px;
       width: 40px;
       text-align: center;
     }
@@ -75,10 +83,11 @@
     #submitBtn {
       background: #00c853;
       border-radius: 8px;
-      padding: 10px 25px;
+      padding: 12px 25px;
       font-size: 18px;
       cursor: pointer;
       transition: 0.3s;
+      margin-top: 20px;
     }
 
     #submitBtn:hover {
@@ -90,58 +99,90 @@
       background: #fff;
       padding: 10px;
       border-radius: 10px;
+      max-width: 80vw;
+      max-height: 80vw;
+    }
+
+    /* ======== 各色設定 ======== */
+    .red { background: #ff5252; }
+    .green { background: #4caf50; }
+    .blue { background: #2196f3; }
+    .white { background: #f5f5f5; color: #000; }
+    .black { background: #000; }
+
+    /* ======== 横向き対応 ======== */
+    @media (orientation: landscape) {
+      body {
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 30px;
+      }
+
+      .chip-container {
+        max-width: 400px;
+      }
+
+      #qrcode {
+        margin-top: 0;
+        align-self: center;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="chip-container">
-    <div class="chip-row" data-color="赤" data-max="100" style="background:#ff5252;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/1IA%E3%82%B3%E3%82%A4%E3%83%B3.png" alt="Red Chip">
-      <div class="controls">
-        <button class="minus">−</button>
-        <span class="count">0</span>
-        <button class="plus">＋</button>
+  <div>
+    <h2>カジノチップ カウンター</h2>
+    <div class="chip-container">
+      <div class="chip-row red" data-color="赤" data-max="100">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/1IA%E3%82%B3%E3%82%A4%E3%83%B3.png" alt="Red Chip">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
+      </div>
+
+      <div class="chip-row green" data-color="緑" data-max="100">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/5IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Green Chip">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
+      </div>
+
+      <div class="chip-row blue" data-color="青" data-max="50">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/10IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Blue Chip">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
+      </div>
+
+      <div class="chip-row white" data-color="白" data-max="20">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/50IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="White Chip">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
+      </div>
+
+      <div class="chip-row black" data-color="黒" data-max="10">
+        <img src="https://rerizu2.github.io/bunkasai2025-1IA/100IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Black Chip">
+        <div class="controls">
+          <button class="minus">−</button>
+          <span class="count">0</span>
+          <button class="plus">＋</button>
+        </div>
       </div>
     </div>
 
-    <div class="chip-row" data-color="緑" data-max="100" style="background:#4caf50;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/5IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Green Chip">
-      <div class="controls">
-        <button class="minus">−</button>
-        <span class="count">0</span>
-        <button class="plus">＋</button>
-      </div>
-    </div>
-
-    <div class="chip-row" data-color="青" data-max="50" style="background:#2196f3;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/10IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Blue Chip">
-      <div class="controls">
-        <button class="minus">−</button>
-        <span class="count">0</span>
-        <button class="plus">＋</button>
-      </div>
-    </div>
-
-    <div class="chip-row" data-color="白" data-max="20" style="background:#f5f5f5; color:#000;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/50IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="White Chip">
-      <div class="controls">
-        <button class="minus">−</button>
-        <span class="count">0</span>
-        <button class="plus">＋</button>
-      </div>
-    </div>
-
-    <div class="chip-row" data-color="黒" data-max="10" style="background:#000;">
-      <img src="https://rerizu2.github.io/bunkasai2025-1IA/100IA%E3%82%B3%E3%82%A4%E3%83%B3.PNG" alt="Black Chip">
-      <div class="controls">
-        <button class="minus">−</button>
-        <span class="count">0</span>
-        <button class="plus">＋</button>
-      </div>
-    </div>
+    <button id="submitBtn">入力完了</button>
   </div>
 
-  <button id="submitBtn">入力完了</button>
   <canvas id="qrcode"></canvas>
 
   <script>
@@ -178,11 +219,9 @@
 
       const qrText = lines.join("\n");
 
-      // ✅ QRコード生成（canvasを使う）
       const canvas = document.getElementById("qrcode");
-      QRCode.toCanvas(canvas, qrText, { width: 200 }, function (error) {
+      QRCode.toCanvas(canvas, qrText, { width: Math.min(window.innerWidth * 0.6, 250) }, function (error) {
         if (error) console.error(error);
-        else console.log("QRコード生成完了");
       });
     };
   </script>
