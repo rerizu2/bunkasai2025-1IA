@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>カジノチップカウント ×4（QR読み取り対応）</title>
+  <title>カジノチップカウント ×4 + QRリーダー（修正版）</title>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-  <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
   <style>
     body {
       font-family: "Noto Sans JP", sans-serif;
@@ -69,7 +69,7 @@
       border: none;
       padding: 10px 15px;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 16px;
       cursor: pointer;
       transition: 0.3s;
     }
@@ -86,14 +86,16 @@
 
     .submitBtn {
       background: #00c853;
-    }
-
-    .submitBtn:hover {
-      background: #00e676;
+      border-radius: 8px;
+      padding: 10px 25px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.3s;
     }
 
     .cameraBtn {
       background: #0288d1;
+      margin-top: 10px;
     }
 
     .cameraBtn:hover {
@@ -104,23 +106,30 @@
       margin-top: 15px;
     }
 
-    .scanner {
-      width: 250px;
-      height: 250px;
-      margin-top: 10px;
+    .camera-area {
       display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    video {
+      width: 260px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: #000;
     }
 
     .scan-result {
-      margin-top: 10px;
+      color: #0f0;
       font-size: 14px;
+      text-align: center;
       word-break: break-all;
     }
   </style>
 </head>
 <body>
 
-  <!-- 1つ目のカウンター -->
   <div class="counter-box">
     <h2>カウンター 1</h2>
     <div class="chip-container">
@@ -170,38 +179,35 @@
       </div>
     </div>
 
-    <button class="submitBtn">QR生成</button>
-    <button class="cameraBtn">📷 カメラを起動</button>
+    <button class="submitBtn">入力完了</button>
     <div class="qrcode"></div>
-    <div id="scanner-1" class="scanner"></div>
-    <div class="scan-result"></div>
+
+    <button class="cameraBtn">📷 カメラ起動</button>
+    <div class="camera-area">
+      <video></video>
+      <div class="scan-result">読み取り結果: <span class="result-text">なし</span></div>
+    </div>
   </div>
 
-  <!-- 残り3つは複製される -->
   <div class="counter-box"><h2>カウンター 2</h2></div>
   <div class="counter-box"><h2>カウンター 3</h2></div>
   <div class="counter-box"><h2>カウンター 4</h2></div>
 
   <script>
-    // 1つ目の構造を残り3つにコピー
     const firstBox = document.querySelector('.counter-box');
     const others = document.querySelectorAll('.counter-box:not(:first-child)');
-    others.forEach((box, i) => {
-      box.innerHTML = firstBox.innerHTML.replace(/scanner-1/g, `scanner-${i+2}`);
-      box.querySelector('h2').textContent = `カウンター ${i+2}`;
-    });
+    others.forEach(box => box.innerHTML = firstBox.innerHTML);
 
-    // カウント・QR生成・カメラ読み取り
     document.querySelectorAll('.counter-box').forEach((box, index) => {
       const chipRows = box.querySelectorAll(".chip-row");
       const submitBtn = box.querySelector(".submitBtn");
-      const cameraBtn = box.querySelector(".cameraBtn");
       const qrDiv = box.querySelector(".qrcode");
-      const scannerDiv = box.querySelector(`#scanner-${index+1}`);
-      const resultDiv = box.querySelector(".scan-result");
-      let scanner = null;
+      const cameraBtn = box.querySelector(".cameraBtn");
+      const cameraArea = box.querySelector(".camera-area");
+      const video = box.querySelector("video");
+      const resultText = box.querySelector(".result-text");
 
-      // カウントボタン処理
+      // カウント機能
       chipRows.forEach(row => {
         const countSpan = row.querySelector(".count");
         const plusBtn = row.querySelector(".plus");
@@ -212,50 +218,50 @@
         minusBtn.onclick = () => { if (count > 0) countSpan.textContent = --count; };
       });
 
-      // QR生成
+      // QRコード生成
       submitBtn.onclick = () => {
         const counts = {};
         chipRows.forEach(row => {
-          const color = row.dataset.color;
-          const count = row.querySelector(".count").textContent;
-          counts[color] = count;
+          counts[row.dataset.color] = row.querySelector(".count").textContent;
         });
         const query = new URLSearchParams(counts).toString();
         const qrURL = `${location.origin}${location.pathname}?${query}&counter=${index+1}`;
         qrDiv.innerHTML = "";
-        new QRCode(qrDiv, {
-          text: qrURL,
-          width: 150,
-          height: 150,
-          colorDark: "#000",
-          colorLight: "#fff"
-        });
+        new QRCode(qrDiv, { text: qrURL, width: 150, height: 150, colorDark: "#000", colorLight: "#fff" });
       };
 
-      // カメラ起動＆読み取り
-      cameraBtn.onclick = () => {
-        if (scanner) {
-          scanner.stop();
-          scanner = null;
-          scannerDiv.style.display = "none";
-          return;
+      // カメラ起動
+      cameraBtn.onclick = async () => {
+        cameraArea.style.display = "flex";
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { exact: "environment" } }
+          }).catch(() => navigator.mediaDevices.getUserMedia({ video: true }));
+          
+          video.srcObject = stream;
+          await video.play();
+
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          const interval = setInterval(() => {
+            if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, canvas.width, canvas.height);
+            if (code) {
+              resultText.textContent = code.data;
+              resultText.style.color = "#0f0";
+              clearInterval(interval);
+              // カメラ停止
+              stream.getTracks().forEach(t => t.stop());
+            }
+          }, 1000);
+        } catch (err) {
+          alert("カメラを使用できません: " + err.message);
         }
-        scannerDiv.style.display = "block";
-        scanner = new Html5Qrcode(`scanner-${index+1}`);
-        scanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 200 },
-          (decodedText) => {
-            resultDiv.textContent = `✅ 読み取ったURL: ${decodedText}`;
-            scanner.stop();
-            scannerDiv.style.display = "none";
-            scanner = null;
-          },
-          (error) => {}
-        ).catch(err => {
-          resultDiv.textContent = "カメラを起動できませんでした。";
-          console.error(err);
-        });
       };
     });
   </script>
