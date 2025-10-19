@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>11A Classroom スタート画面</title>
+  <style>
+    html,body{height:100%;margin:0;padding:0;font-family:sans-serif;background:#000;display:flex;justify-content:center;align-items:center;}
+    #container{position:relative;width:100%;height:100%;display:flex;justify-content:center;align-items:center;overflow:hidden;}
+    img{width:100%;height:100%;object-fit:cover;cursor:pointer;}
+    .overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;pointer-events:none;}
+    .progress-circle{position:absolute;width:150px;height:150px;border-radius:50%;border:6px solid rgba(255,255,255,0.3);}
+    .fill{position:absolute;width:150px;height:150px;border-radius:50%;border:6px solid #6be6b4;clip-path:inset(0 100% 0 0);transition:clip-path 0.1s linear;}
+    .message{position:absolute;bottom:30px;color:white;font-size:1.2rem;text-shadow:0 0 5px black;}
+    #nextScreen{display:none;flex-direction:column;justify-content:center;align-items:center;color:white;font-size:2rem;}
+  </style>
+</head>
+<body>
+  <div id="container">
+    <img id="startImage" src="https://rerizu2.github.io/bunkasai2025-1IA/1IA%E6%96%87%E5%8C%96%E7%A5%AD%E7%94%A8%E5%AE%A3%E4%BC%9D%E3%83%9D%E3%82%B9%E3%82%BF%E3%83%BC.png" alt="11A Classroom">
+    <div class="overlay">
+      <div class="progress-circle"></div>
+      <div class="fill" id="fill"></div>
+      <div class="message" id="message">1IAの生徒スタッフに従ってください</div>
+    </div>
+  </div>
+
+  <div id="nextScreen">
+    <p>ようこそ！</p>
+    <button id="backBtn">戻る</button>
+  </div>
+
+  <script>
+    const img=document.getElementById('startImage');
+    const fill=document.getElementById('fill');
+    const msg=document.getElementById('message');
+    const next=document.getElementById('nextScreen');
+    const container=document.getElementById('container');
+    const back=document.getElementById('backBtn');
+
+    let pressTimer,progress=0,interval;
+
+    function startHold(){
+      clearInterval(interval);
+      progress=0;
+      fill.style.clipPath=`inset(0 ${100-progress}% 0 0)`;
+      msg.textContent='保持中...';
+      interval=setInterval(()=>{
+        progress+=3.3;
+        fill.style.clipPath=`inset(0 ${100-progress}% 0 0)`;
+        if(progress>=100){
+          clearInterval(interval);
+          complete();
+        }
+      },100);
+    }
+
+    function cancelHold(){
+      clearInterval(interval);
+      fill.style.clipPath=`inset(0 100% 0 0)`;
+      msg.textContent='1IAの生徒スタッフに従ってください';
+    }
+
+    function complete(){
+      container.style.display='none';
+      next.style.display='flex';
+    }
+
+    img.addEventListener('mousedown',startHold);
+    img.addEventListener('mouseup',cancelHold);
+    img.addEventListener('mouseleave',cancelHold);
+
+    img.addEventListener('touchstart',startHold);
+    img.addEventListener('touchend',cancelHold);
+    img.addEventListener('touchcancel',cancelHold);
+
+    back.addEventListener('click',()=>{
+      next.style.display='none';
+      container.style.display='flex';
+      cancelHold();
+    });
+  </script>
+</body>
+</html>
