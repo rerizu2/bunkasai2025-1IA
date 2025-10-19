@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>カジノチップカウント</title>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <style>
     body {
       font-family: "Noto Sans JP", sans-serif;
@@ -14,190 +14,259 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
       min-height: 100vh;
       margin: 0;
       padding: 20px;
     }
-    h2 { margin-bottom: 15px; }
+    h2 { margin-bottom: 20px; text-align: center; }
     .chip-container {
       display: flex;
       flex-direction: column;
+      align-items: center;
       gap: 12px;
       width: 100%;
-      max-width: 400px;
+      max-width: 480px;
     }
     .chip-row {
       display: flex;
       flex-direction: column;
       align-items: center;
       border-radius: 10px;
-      padding: 10px;
+      padding: 10px 15px;
       width: 100%;
     }
     .chip-main {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       width: 100%;
     }
-    img {
+    .chip-row img {
       width: 60px; height: 60px; border-radius: 50%;
     }
-    .controls { display: flex; align-items: center; gap: 10px; }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     button {
       background: #444; color: #fff; border: none;
-      padding: 8px 12px; border-radius: 8px; cursor: pointer;
+      padding: 10px; border-radius: 50%;
+      font-size: 18px; cursor: pointer; transition: 0.2s;
     }
-    .count { width: 40px; text-align: center; font-size: 18px; }
+    button:hover { background: #666; }
+    .count { font-size: 18px; width: 40px; text-align: center; }
     .remaining { font-size: 14px; margin-top: 6px; opacity: 0.8; }
+
     #submitBtn, #scanBtn {
-      margin-top: 20px; padding: 12px 25px; border-radius: 8px;
-      background: #00c853; color: white; border: none; font-size: 16px;
+      border-radius: 8px;
+      padding: 12px 25px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 20px;
     }
-    #submitBtn:hover, #scanBtn:hover { background: #00e676; }
-    #reader { display: none; width: 100%; max-width: 360px; margin-top: 20px; }
-    #qrcode { margin-top: 20px; background: #fff; padding: 10px; border-radius: 10px; }
-    .red { background: #ff5252; } .green { background: #4caf50; } .blue { background: #2196f3; }
-    .white { background: #f5f5f5; color: #000; } .black { background: #000; }
+    #submitBtn { background: #00c853; }
+    #submitBtn:hover { background: #00e676; }
+    #scanBtn { background: #2979ff; }
+    #scanBtn:hover { background: #448aff; }
+
+    #qrcode {
+      margin-top: 20px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80vw;
+      max-height: 80vw;
+    }
+    video {
+      display: none;
+      margin-top: 20px;
+      width: 300px;
+      border-radius: 10px;
+    }
+
+    .red { background: #ff5252; }
+    .green { background: #4caf50; }
+    .blue { background: #2196f3; }
+    .white { background: #f5f5f5; color: #000; }
+    .black { background: #000; }
+
+    @media (orientation: landscape) {
+      body { flex-direction: row; justify-content: center; align-items: flex-start; gap: 30px; }
+      #qrcode { margin-top: 0; }
+    }
   </style>
 </head>
 <body>
-  <h2>カジノチップ カウンター</h2>
-
-  <div class="chip-container">
-    <div class="chip-row red" data-color="赤" data-max="100">
-      <div class="chip-main">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Poker_chip_red.png">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
+  <div>
+    <h2>カジノチップ カウンター</h2>
+    <div class="chip-container">
+      <div class="chip-row red" data-color="赤" data-max="100">
+        <div class="chip-main">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Poker_chip_red.png" alt="Red">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
         </div>
+        <div class="remaining">残り: 100枚</div>
       </div>
-      <div class="remaining">残り: 100枚</div>
+
+      <div class="chip-row green" data-color="緑" data-max="100">
+        <div class="chip-main">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Poker_chip_green.png" alt="Green">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
+        </div>
+        <div class="remaining">残り: 100枚</div>
+      </div>
+
+      <div class="chip-row blue" data-color="青" data-max="50">
+        <div class="chip-main">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Poker_chip_blue.png" alt="Blue">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
+        </div>
+        <div class="remaining">残り: 50枚</div>
+      </div>
+
+      <div class="chip-row white" data-color="白" data-max="20">
+        <div class="chip-main">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/Poker_chip_white.png" alt="White">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
+        </div>
+        <div class="remaining">残り: 20枚</div>
+      </div>
+
+      <div class="chip-row black" data-color="黒" data-max="10">
+        <div class="chip-main">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Poker_chip_black.png" alt="Black">
+          <div class="controls">
+            <button class="minus">−</button>
+            <span class="count">0</span>
+            <button class="plus">＋</button>
+          </div>
+        </div>
+        <div class="remaining">残り: 10枚</div>
+      </div>
     </div>
 
-    <div class="chip-row green" data-color="緑" data-max="100">
-      <div class="chip-main">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Poker_chip_green.png">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
-        </div>
-      </div>
-      <div class="remaining">残り: 100枚</div>
-    </div>
-
-    <div class="chip-row blue" data-color="青" data-max="50">
-      <div class="chip-main">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Poker_chip_blue.png">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
-        </div>
-      </div>
-      <div class="remaining">残り: 50枚</div>
-    </div>
-
-    <div class="chip-row white" data-color="白" data-max="20">
-      <div class="chip-main">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/Poker_chip_white.png">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
-        </div>
-      </div>
-      <div class="remaining">残り: 20枚</div>
-    </div>
-
-    <div class="chip-row black" data-color="黒" data-max="10">
-      <div class="chip-main">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Poker_chip_black.png">
-        <div class="controls">
-          <button class="minus">−</button>
-          <span class="count">0</span>
-          <button class="plus">＋</button>
-        </div>
-      </div>
-      <div class="remaining">残り: 10枚</div>
-    </div>
+    <button id="submitBtn">入力完了</button>
+    <button id="scanBtn">QRコード読み取り</button>
   </div>
 
-  <button id="submitBtn">入力完了（QR生成）</button>
-  <button id="scanBtn">QRコードを読み取る</button>
-
   <canvas id="qrcode"></canvas>
-  <div id="reader"></div>
+  <video id="camera" playsinline></video>
 
   <script>
     const chipRows = document.querySelectorAll(".chip-row");
+
     chipRows.forEach(row => {
       const countSpan = row.querySelector(".count");
       const remaining = row.querySelector(".remaining");
-      const plus = row.querySelector(".plus");
-      const minus = row.querySelector(".minus");
+      const plusBtn = row.querySelector(".plus");
+      const minusBtn = row.querySelector(".minus");
       const max = Number(row.dataset.max);
       let count = 0;
 
-      function update() {
+      function updateRemaining() {
         remaining.textContent = `残り: ${max - count}枚`;
       }
-      plus.onclick = () => { if (count < max) { count++; countSpan.textContent = count; update(); } };
-      minus.onclick = () => { if (count > 0) { count--; countSpan.textContent = count; update(); } };
+
+      plusBtn.onclick = () => {
+        if (count < max) {
+          count++;
+          countSpan.textContent = count;
+          updateRemaining();
+        }
+      };
+      minusBtn.onclick = () => {
+        if (count > 0) {
+          count--;
+          countSpan.textContent = count;
+          updateRemaining();
+        }
+      };
     });
 
+    // ✅ 入力完了 → QRコード生成（残りも含む）
     document.getElementById("submitBtn").onclick = () => {
       const lines = [];
       chipRows.forEach(row => {
         const color = row.dataset.color;
-        const count = row.querySelector(".count").textContent;
-        lines.push(`${color}=${count}`);
+        const count = Number(row.querySelector(".count").textContent);
+        const max = Number(row.dataset.max);
+        const remain = max - count;
+        lines.push(`${color}=${count}/残り${remain}`);
       });
+
       const qrText = lines.join("\n");
       const canvas = document.getElementById("qrcode");
-      QRCode.toCanvas(canvas, qrText, { width: 250 }, (error) => {
-        if (error) console.error(error);
+      QRCode.toCanvas(canvas, qrText, { width: Math.min(window.innerWidth * 0.6, 250) });
+
+      chipRows.forEach(row => {
+        row.querySelector(".count").textContent = "0";
       });
-      chipRows.forEach(row => row.querySelector(".count").textContent = "0");
     };
 
-    // === QR読み取り ===
-    const readerDiv = document.getElementById("reader");
+    // ✅ QRコード読み取り（外カメ使用）
     const scanBtn = document.getElementById("scanBtn");
-    let qrScanner;
+    const video = document.getElementById("camera");
 
     scanBtn.onclick = async () => {
-      try {
-        readerDiv.style.display = "block";
-        if (!qrScanner) qrScanner = new Html5Qrcode("reader");
+      video.style.display = "block";
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+      });
+      video.srcObject = stream;
+      await video.play();
 
-        const devices = await Html5Qrcode.getCameras();
-        if (!devices.length) return alert("カメラが見つかりません");
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
 
-        const camera = devices.find(d => /back|rear|environment/i.test(d.label)) || devices[0];
+      let scanning = true;
+      function scan() {
+        if (!scanning) return;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imgData.data, canvas.width, canvas.height);
 
-        await qrScanner.start(
-          camera.id,
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          (text) => {
-            const lines = text.split("\n");
-            lines.forEach(line => {
-              const [color, num] = line.split("=");
-              const row = Array.from(chipRows).find(r => r.dataset.color === color);
-              if (row) row.querySelector(".count").textContent = num;
-            });
-            qrScanner.stop();
-            readerDiv.style.display = "none";
-          },
-          (err) => {}
-        );
-      } catch (err) {
-        alert("カメラ起動に失敗しました: " + err.message);
-        console.error(err);
+        if (code && code.data) {
+          scanning = false;
+          const lines = code.data.split("\n");
+          lines.forEach(line => {
+            const [colorPart, rest] = line.split("=");
+            if (!rest) return;
+            const [countStr, remainStr] = rest.split("/残り");
+            const row = [...chipRows].find(r => r.dataset.color === colorPart);
+            if (row) {
+              row.querySelector(".count").textContent = countStr;
+              row.querySelector(".remaining").textContent = `残り: ${remainStr}枚`;
+            }
+          });
+          alert("QRコードを読み取りました！");
+          stream.getTracks().forEach(track => track.stop());
+          video.style.display = "none";
+        } else {
+          requestAnimationFrame(scan);
+        }
       }
+      requestAnimationFrame(scan);
     };
   </script>
 </body>
