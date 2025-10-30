@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>11A Classroom — Card Battle / Photo Booth / Shooting Challenge</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#0b0b0b;
+    --accent: #ffd24d;
+    --muted: #d8d8d8;
+    --glass: rgba(255,255,255,0.06);
+  }
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--bg);
+    color: white;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* Page container */
+  .hero {
+    min-height:100vh;
+    display:grid;
+    grid-template-columns: 1fr 480px;
+    gap: 2rem;
+    align-items:center;
+    padding: 48px;
+    box-sizing:border-box;
+  }
+
+  /* Left — large title + tagline */
+  .hero-left{
+    padding: 24px 32px;
+  }
+
+  .eyebrow{
+    color:var(--accent);
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-bottom: 8px;
+    font-size:14px;
+  }
+
+  .main-title{
+    font-family: "Playfair Display", serif;
+    font-weight:700;
+    font-size: clamp(40px, 8vw, 84px);
+    line-height:0.9;
+    margin: 0 0 16px 0;
+    color: #fff;
+    letter-spacing: 2px;
+  }
+
+  .subtitle{
+    font-weight:300;
+    color:var(--muted);
+    letter-spacing:4px;
+    margin: 18px 0 28px 0;
+    font-size:14px;
+  }
+
+  .features{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .feature{
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border-radius:12px;
+    padding:14px 18px;
+    min-width:200px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .feature h3{
+    margin:0 0 6px 0;
+    font-size:16px;
+    font-weight:700;
+    color:#fff;
+  }
+  .feature p{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  /* Right — image card stack and CTA */
+  .hero-right{
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:16px;
+  }
+
+  .card-frame{
+    width:100%;
+    max-width:420px;
+    aspect-ratio: 16/10;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow: 0 22px 60px rgba(0,0,0,0.7), 0 6px 18px rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.06);
+    position:relative;
+    transform: rotate(-3deg);
+    background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.1));
+  }
+
+  .card-frame img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    filter: contrast(1.05) saturate(1.05);
+  }
+
+  /* decorative overlay icons */
+  .sparkle{
+    position:absolute;
+    width:44px;
+    height:44px;
+    background:var(--accent);
+    clip-path: polygon(50% 0, 61% 36%, 100% 36%, 69% 59%, 79% 100%, 50% 75%, 21% 100%, 31% 59%, 0 36%, 39% 36%);
+    opacity:0.9;
+    transform: rotate(8deg);
+    right: -10%;
+    top: -6%;
+    box-shadow: 0 8px 24px rgba(255,210,77,0.12);
+  }
+
+  .cards-decor{
+    position:absolute;
+    left: -6%;
+    top: -8%;
+    transform: rotate(-8deg);
+    opacity:0.95;
+  }
+
+  /* CTA area */
+  .cta{
+    margin-top:18px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .btn{
+    background: linear-gradient(90deg, #ffd24d 0%, #ffb84d 100%);
+    color:#111;
+    font-weight:700;
+    padding:12px 18px;
+    border-radius:10px;
+    border: none;
+    cursor:pointer;
+    box-shadow: 0 8px 30px rgba(255,178,77,0.12);
+  }
+
+  .ghost{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.08);
+    color:var(--muted);
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+
+  /* Section styles for below fold */
+  section.info-strip{
+    padding: 48px 48px;
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  }
+  .card{
+    background: var(--glass);
+    border-radius:14px;
+    padding:18px;
+    min-height:140px;
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  .card h4{ margin:0 0 8px 0; font-size:16px; }
+  .card p{ margin:0; color:var(--muted); font-size:14px; }
+
+  /* small screens */
+  @media (max-width:980px){
+    .hero{
+      grid-template-columns: 1fr;
+      padding: 28px;
+      gap:12px;
+    }
+    .hero-right{ order:-1; padding:0; }
+    .info-strip{ grid-template-columns: 1fr; padding:24px; }
+  }
+
+  /* small decorative animation */
+  @keyframes floaty {
+    0%{ transform: translateY(0) rotate(-3deg); }
+    50%{ transform: translateY(-10px) rotate(-4deg); }
+    100%{ transform: translateY(0) rotate(-3deg); }
+  }
+  .card-frame{ animation: floaty 6s ease-in-out infinite; }
+
+  /* accessibility focus */
+  .btn:focus, .ghost:focus { outline:3px solid rgba(255,210,77,0.22); outline-offset:2px; }
+</style>
+</head>
+
+<body>
+  <header class="hero" role="banner" aria-label="11A Classroom Hero">
+    <div class="hero-left">
+      <div class="eyebrow">11A</div>
+      <h1 class="main-title" aria-hidden="false">CLASSROOM</h1>
+
+      <div class="subtitle" aria-hidden="false">
+        CARD BATTLE &nbsp;&nbsp; | &nbsp;&nbsp; PHOTO BOOTH &nbsp;&nbsp; | &nbsp;&nbsp; SHOOTING CHALLENGE
+      </div>
+
+      <div class="features" aria-hidden="false">
+        <article class="feature" aria-labelledby="f1">
+          <h3 id="f1">カードゲーム</h3>
+          <p>時間によて変わるカードゲーム。初心者向けルール説明あり。</p>
+        </article>
+
+        <article class="feature" aria-labelledby="f2">
+          <h3 id="f2">フォトスポット</h3>
+          <p>恐竜たちと一緒に撮影ができて、写真は1IAのスタッフにお願いするともらえる。</p>
+        </article>
+
+        <article class="feature" aria-labelledby="f3">
+          <h3 id="f3">ラジコン＆射的</h3>
+          <p>動いているラジコンの上に乗っている的に輪ゴムがあたらとポイントが溜まる。</p>
+        </article>
+      </div>
+
+      <div class="cta" role="navigation" aria-label="Call to action">
+        <button class="btn" onclick="openSignup()">参加予約をする</button>
+        <button class="ghost" onclick="scrollToInfo()">詳細を見る</button>
+      </div>
+    </div>
+
+    <div class="hero-right" aria-hidden="false">
+      <div class="cards-decor" aria-hidden="true">
+        <!-- simple SVG stack of cards -->
+        <svg width="180" height="120" viewBox="0 0 180 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="6" width="120" height="78" rx="8" fill="#fff" opacity="0.05" />
+          <rect x="18" y="18" width="120" height="78" rx="8" fill="#fff" opacity="0.06" />
+          <rect x="30" y="30" width="120" height="78" rx="8" fill="#fff" opacity="0.07" />
+        </svg>
+      </div>
+
+      <div class="card-frame" role="img" aria-label="11A Classroom Hero image">
+        <img src="images/hero.jpg" alt="11A classroom poster with dinosaur, robot and playing cards" />
+      </div>
+
+      <div class="sparkle" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="info-strip" id="info">
+      <div class="card">
+        <h4>イベント概要</h4>
+        <p>日時・会場の基本情報をここに。<br>日時：10月31日 9:00~14:00<br>会場：1IA教室</p>
+      </div>
+      <div class="card">
+        <h4>スケジュール</h4>
+        <p>9:00 受付</p>
+      </div>
+    </section>
+
+    <section style="padding:36px 48px;">
+      <h2 style="font-family: 'Playfair Display', serif; font-weight:700; color:#fff; margin:0 0 12px 0;">情報</h2>
+      <p style="color:var(--muted); margin:0 0 18px 0;">現在の1IA教室の情報</p>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-top:14px;">
+        <div style="border-radius:10px; overflow:hidden; min-height:110px; background:linear-gradient(180deg,#141414,#0d0d0d); display:flex; align-items:center; justify-content:center; color:var(--muted); border:1px solid rgba(255,255,255,0.02);"><img src="https://rerizu2.github.io/bunkasai2025-1IA/マップ.png" alt="マップ" width="300" height="200"></div>
+        <div style="border-radius:10px; overflow:hidden; min-height:110px; background:linear-gradient(180deg,#141414,#0d0d0d); display:flex; align-items:center; justify-content:center; color:var(--muted); border:1px solid rgba(255,255,255,0.02);"><video controls src="https://rerizu2.github.io/bunkasai2025-1IA/Video_20251030_165332_841.mp4" alt="ルール動画" width="300" height="200"></video></div>
+        <div style="border-radius:10px; overflow:hidden; min-height:110px; background:linear-gradient(180deg,#141414,#0d0d0d); display:flex; align-items:center; justify-content:center; color:var(--muted); border:1px solid rgba(255,255,255,0.02);"><iframe width="560" height="315" src="https://www.youtube.com/embed/FHXwJ6U_7mU?si=CxexaPSCelUH7iF3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+      </div>
+    </section>
+  </main>
+
+  <footer style="padding:28px 48px; color:var(--muted); border-top:1px solid rgba(255,255,255,0.02);">
+    <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;">
+      <div>© 11A Classroom</div>
+      <div>1IAシステム: <span style="color:var(--accent)">文化祭</span></div>
+    </div>
+  </footer>
+
+<script>
+  // 「参加する」ボタンを押したときに別のURLに移動
+  function openSignup(){
+    window.location.href = "https://docs.google.com/forms/d/1ja8idQzERLiv0ouhZ1k7KepGmPHjMulyLj1FCC7Wo2E/edit";
+  }
+
+  // 「詳細を見る」ボタンで下へスクロール
+  function scrollToInfo(){
+    document.getElementById('info').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>
